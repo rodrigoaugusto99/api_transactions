@@ -45,6 +45,7 @@ export async function transactionsRoutes(app: FastifyInstance) {
     })
 
     const { id } = getTransactionsParamsSchema.parse(request.params)
+    console.log(`id: ${id}`)
 
     const sessionIdFromHeader = request.headers['set-cookie']
 
@@ -58,16 +59,13 @@ export async function transactionsRoutes(app: FastifyInstance) {
         id,
       })
       .first()
-
+      console.log(`transaction: ${transaction},`)
       //estamos pegando o primeiro elemento, entao nao eh lista.
-    return { transaction }
+  return transaction 
     }
-    
 
-//logica para rodar quando nao tiver sessionIdpeloHeader.
-//se tiver pelo header, nem continua por aqui pois teve early return.
-    const sessionIdFromCookies  = request.cookies.sessionId
-    
+    //const { sessionId } = request.cookies
+    const sessionIdFromCookies = request.cookies.sessionId
     
     if (!sessionIdFromCookies) {
       return reply.status(401).send({
@@ -75,15 +73,15 @@ export async function transactionsRoutes(app: FastifyInstance) {
       });
     }
 
-    const transaction = await knex('transactions')
-      .where({
-        session_id: sessionIdFromCookies,
-        id,
-      })
-      .first()
 
-      //estamos pegando o primeiro elemento, entao nao eh lista.
-    return { transaction }
+      console.log('sessionId:', sessionIdFromCookies);
+      const transactions = await knex('transactions')
+            .where('session_id', sessionIdFromCookies, id)
+            .select()
+
+      return transactions
+    
+
   })
 
   //nao tratado para casos do flutter.(cookie no header)
