@@ -20,3 +20,35 @@ npm run knex -- migrate:make create-documents
 npm run knex -- migrate:latest
 
 npm i @rocketseat/eslint-config 
+
+criar pasta de rotas, criar nova rota, registrar no server.ts
+npm i @fastify/cookie
+npm i @types/node
+npm i zod
+
+
+no post: 
+-o body eh validado pelo zod
+-ha validacao p ver se ha sessionId nos cookies
+-se nao tiver, criar um e enviar pros cookies
+-fazer o insert com os dados validados do body
+e com o cookie que foi criado agr ou que ja tinha
+
+no get:
+-nao ha body
+-validacao pra saber se ha sessionId.
+-fazer o select nas transacoes com aquele sessionId
+
+no get com id da transacao:
+- o param eh validado pelo zod
+- ha validacao pra ver se ha sessionId nos cookies
+- fazer o select com aquele sessionId e aquele id da transacao
+
+
+
+
+
+
+
+
+

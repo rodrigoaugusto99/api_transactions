@@ -1,10 +1,32 @@
 import fastify from 'fastify'
+import cookie from '@fastify/cookie'
+import { transactionsRoutes } from './routes/transactions'
 
 const app = fastify()
 
-app.get('/hello', () => {
-  return 'hi m'
+app.register(cookie)
+
+app.register(transactionsRoutes, {
+  prefix: 'transactions',
 })
+
+// app.use((error, request, response, next) => {
+
+//   if(error instanceof AppError){
+//       return response.status(error.statusCode).json({
+//           status: 'error',
+//           message: error.message,
+//       })
+//   }
+
+//   console.log(error)
+
+//   return response.status(500).json({
+//       status: 'error',
+//       message: 'Internal server error',
+//   })
+  
+// })
 
 app
   .listen({
