@@ -2,9 +2,10 @@ import { FastifyInstance } from 'fastify'
 import { randomUUID } from 'node:crypto'
 import { knex } from '../database'
 import { z } from 'zod'
+import { checkSessionIdExists } from '../middleware/check-if-session-id-exists'
 
 export async function transactionsRoutes(app: FastifyInstance) {
-  app.get('/', async (request, reply) => {
+  app.get('/', { preHandler: [checkSessionIdExists]} ,async (request, reply) => {
     
 
     const sessionIdFromHeader = request.headers['set-cookie']
@@ -116,6 +117,7 @@ export async function transactionsRoutes(app: FastifyInstance) {
     const { title, amount, type } = createTransactionBodySchema.parse(
       request.body,
     )
+    console.log(title, amount, type)
 
     const sessionIdFromHeader = request.headers['set-cookie']
 

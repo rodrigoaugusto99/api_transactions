@@ -11,7 +11,7 @@ app.register(transactionsRoutes, {
 })
 
 // app.use((error, request, response, next) => {
-
+//erro do usuario
 //   if(error instanceof AppError){
 //       return response.status(error.statusCode).json({
 //           status: 'error',
@@ -20,7 +20,7 @@ app.register(transactionsRoutes, {
 //   }
 
 //   console.log(error)
-
+//erro que nao foi do usuario, entao foi do server
 //   return response.status(500).json({
 //       status: 'error',
 //       message: 'Internal server error',
