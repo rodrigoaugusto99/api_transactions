@@ -11,18 +11,19 @@ export async function checkSessionIdExists(
   console.log(sessionIdByCookies)
   console.log(sessionIdByHeader)
 
-  if (!sessionIdByCookies) {
-    console.log('sem sessionIdByCookies')
-  }
-
   if (sessionIdByHeader && sessionIdByHeader[0] == '') {
     console.log('sem sessionIdByHeader')
-  }
-
-  //cai aqui se nao tiver cookie no cookie ou no header
-  if(!sessionIdByCookies && sessionIdByHeader && sessionIdByHeader[0] == ''){
-    return reply.status(401).send({
+    
+   return reply.status(401).send({
       error: 'Unauthorized.',
     })
   }
+
+  if (!sessionIdByCookies && !sessionIdByHeader) {
+    console.log('sem sessionIdByCookies')
+   return reply.status(401).send({
+      error: 'Unauthorized.',
+    })
+  }
+
 }

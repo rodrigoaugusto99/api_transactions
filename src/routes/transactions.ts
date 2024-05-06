@@ -19,15 +19,9 @@ export async function transactionsRoutes(app: FastifyInstance) {
   return transactions
     }
 
-    //const { sessionId } = request.cookies
     const sessionIdFromCookies  = request.cookies.sessionId
     
-    if (!sessionIdFromCookies) {
-      return reply.status(401).send({
-          error: 'Unauthorized.'
-      });
-    }
-
+    
 
       console.log('sessionId:', sessionIdFromCookies);
       const transactions = await knex('transactions')
@@ -40,7 +34,7 @@ export async function transactionsRoutes(app: FastifyInstance) {
 
   })
 
-  app.get('/:id', async (request, reply) => {
+  app.get('/:id' ,{ preHandler: [checkSessionIdExists]} , async (request, reply) => {
     const getTransactionsParamsSchema = z.object({
       id: z.string().uuid(),
     })
@@ -50,6 +44,7 @@ export async function transactionsRoutes(app: FastifyInstance) {
 
     const sessionIdFromHeader = request.headers['set-cookie']
 
+console.log(`sessionIdFromHeader: ${sessionIdFromHeader},`)
 
     //logica para caso tenha sessionIdPeloHeader (flutter)
     if(sessionIdFromHeader){
@@ -68,17 +63,11 @@ export async function transactionsRoutes(app: FastifyInstance) {
     //const { sessionId } = request.cookies
     const sessionIdFromCookies = request.cookies.sessionId
     
-    if (!sessionIdFromCookies) {
-      return reply.status(401).send({
-          error: 'Unauthorized.'
-      });
-    }
-
-
       console.log('sessionId:', sessionIdFromCookies);
       const transactions = await knex('transactions')
-            .where('session_id', sessionIdFromCookies, id)
+            .where({session_id: sessionIdFromCookies!, id})
             .select()
+            
 
       return transactions
     
@@ -88,26 +77,41 @@ export async function transactionsRoutes(app: FastifyInstance) {
   //nao tratado para casos do flutter.(cookie no header)
   app.get(
     '/summary',
-
+    { preHandler: [checkSessionIdExists]} ,
     async (request, reply) => {
+
+      const sessionIdFromHeader = request.headers['set-cookie']
+      console.log(`sessionIdFromHeader: ${sessionIdFromHeader}`)
+    if(sessionIdFromHeader){
+      const summary = await knex('transactions')
+        .where('session_id', sessionIdFromHeader[0])
+        .sum('amount', { as: 'amount' })
+        .first()
+console.log(`summary: ${summary}`)
+  return { summary }
+    }
       const { sessionId } = request.cookies
-
-      if (!sessionId) {
-        return reply.status(401).send({
-          error: 'Unauthorized.',
-        })
-      }
-
+      console.log(`sessionId: ${sessionId}`)
       const summary = await knex('transactions')
         .where('session_id', sessionId)
         .sum('amount', { as: 'amount' })
         .first()
-
+        console.log(`summary: ${summary?.amount}`)
       return { summary }
+      /*
+      dessa forma, summary vai ser retornado como:
+
+      {
+          "summary": {
+            "amount": 2588
+          }
+      }                   
+        
+        */
     },
   )
 
-  app.post('/', async (request, reply) => {
+  app.post('/',  async (request, reply) => {
     const createTransactionBodySchema = z.object({
       title: z.string(),
       amount: z.number(),
