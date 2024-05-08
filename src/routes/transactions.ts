@@ -7,22 +7,37 @@ import { checkSessionIdExists } from '../middleware/check-if-session-id-exists'
 export async function transactionsRoutes(app: FastifyInstance) {
   app.get('/', { preHandler: [checkSessionIdExists]} ,async (request, reply) => {
     
-
+    
+//tentando pegar cookie do flutter
     const sessionIdFromHeader = request.headers['set-cookie']
 
+//se tem cookie no header(eh flutter)
     if(sessionIdFromHeader){
       console.log('sessionIdFromHeader:', sessionIdFromHeader);
+      const { title } = request.query
+    console.log(`title: ${title}`)
+
+    //antes de fzr o getAll, vejo se tem esse filtrozinho de title pelo query
+    if(title){
+      const transactions = await knex('transactions')
+       .where('session_id', sessionIdFromHeader[0])
+       .whereLike('title',`%${title}%`)
+       .select()
+
+       console.log(transactions)
+       return transactions
+    }
+      
       const transactions = await knex('transactions')
               .where('session_id', sessionIdFromHeader[0])
               .select()
 
-  return transactions
+      return transactions
     }
 
+    //se nao teve cookie do flutter, que pega pelo header, entao ve se tem no cookie normal da web
     const sessionIdFromCookies  = request.cookies.sessionId
     
-    
-
       console.log('sessionId:', sessionIdFromCookies);
       const transactions = await knex('transactions')
             .where('session_id', sessionIdFromCookies)
@@ -34,45 +49,85 @@ export async function transactionsRoutes(app: FastifyInstance) {
 
   })
 
-  app.get('/:id' ,{ preHandler: [checkSessionIdExists]} , async (request, reply) => {
-    const getTransactionsParamsSchema = z.object({
-      id: z.string().uuid(),
-    })
+//   app.get('/:id' ,{ preHandler: [checkSessionIdExists]} , async (request, reply) => {
+//     const getTransactionsParamsSchema = z.object({
+//       id: z.string().uuid(),
+//     })
 
-    const { id } = getTransactionsParamsSchema.parse(request.params)
-    console.log(`id: ${id}`)
+//     const { id } = getTransactionsParamsSchema.parse(request.params)
+//     console.log(`id: ${id}`)
 
-    const sessionIdFromHeader = request.headers['set-cookie']
+//     const sessionIdFromHeader = request.headers['set-cookie']
 
-console.log(`sessionIdFromHeader: ${sessionIdFromHeader},`)
+// console.log(`sessionIdFromHeader: ${sessionIdFromHeader},`)
 
-    //logica para caso tenha sessionIdPeloHeader (flutter)
-    if(sessionIdFromHeader){
-      console.log('sessionIdFromHeader:', sessionIdFromHeader);
-      const transaction = await knex('transactions')
-      .where({
-        session_id: sessionIdFromHeader[0],
-        id,
-      })
-      .first()
-      console.log(`transaction: ${transaction},`)
-      //estamos pegando o primeiro elemento, entao nao eh lista.
-  return transaction 
-    }
+//     //logica para caso tenha sessionIdPeloHeader (flutter)
+//     if(sessionIdFromHeader){
+//       console.log('sessionIdFromHeader:', sessionIdFromHeader);
+//       const transaction = await knex('transactions')
+//       .where({
+//         session_id: sessionIdFromHeader[0],
+//         id,
+//       })
+//       .first()
+//       console.log(`transaction: ${transaction},`)
+//       //estamos pegando o primeiro elemento, entao nao eh lista.
+//   return transaction 
+//     }
 
-    //const { sessionId } = request.cookies
-    const sessionIdFromCookies = request.cookies.sessionId
+//     //const { sessionId } = request.cookies
+//     const sessionIdFromCookies = request.cookies.sessionId
     
-      console.log('sessionId:', sessionIdFromCookies);
-      const transactions = await knex('transactions')
-            .where({session_id: sessionIdFromCookies!, id})
-            .select()
+//       console.log('sessionId:', sessionIdFromCookies);
+//       const transactions = await knex('transactions')
+//             .where({session_id: sessionIdFromCookies!, id})
+//             .select()
             
 
-      return transactions
+//       return transactions
     
 
-  })
+//   })
+
+//   app.get('/:search' ,{ preHandler: [checkSessionIdExists]} , async (request, reply) => {
+//     const getTransactionsParamsSchema = z.object({
+//       id: z.string().uuid(),
+//     })
+
+//     const { id } = getTransactionsParamsSchema.parse(request.params)
+//     console.log(`id: ${id}`)
+
+//     const sessionIdFromHeader = request.headers['set-cookie']
+
+// console.log(`sessionIdFromHeader: ${sessionIdFromHeader},`)
+
+//     //logica para caso tenha sessionIdPeloHeader (flutter)
+//     if(sessionIdFromHeader){
+//       console.log('sessionIdFromHeader:', sessionIdFromHeader);
+//       const transaction = await knex('transactions')
+//       .where({
+//         session_id: sessionIdFromHeader[0],
+//         id,
+//       })
+//       .first()
+//       console.log(`transaction: ${transaction},`)
+//       //estamos pegando o primeiro elemento, entao nao eh lista.
+//   return transaction 
+//     }
+
+//     //const { sessionId } = request.cookies
+//     const sessionIdFromCookies = request.cookies.sessionId
+    
+//       console.log('sessionId:', sessionIdFromCookies);
+//       const transactions = await knex('transactions')
+//             .where({session_id: sessionIdFromCookies!, id})
+//             .select()
+            
+
+//       return transactions
+    
+
+//   })
 
   //nao tratado para casos do flutter.(cookie no header)
   app.get(
