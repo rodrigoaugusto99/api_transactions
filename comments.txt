@@ -44,6 +44,19 @@ no get com id da transacao:
 - ha validacao pra ver se ha sessionId nos cookies
 - fazer o select com aquele sessionId e aquele id da transacao
 
+todos os metodos:
+- todo verificam primeiro se ha cookie no header.
+- se tiver, entao usar esse cookie
+- com flutter, o cookie eh enviado e recebido pelo header
+- se nao tiver cookie no header, pega da web mesmo, com request.cookie
+- faz o retorno das transactions nos dois casos.
+
+middleware que lanca erro se nao tiver nem um nem outro
+
+no get:
+ - verificar se ha query com a key title
+ - se tiver, fazer a busca com esse filtro.
+
 
 
 
