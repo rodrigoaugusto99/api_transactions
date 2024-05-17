@@ -58,7 +58,9 @@ no get:
  - se tiver, fazer a busca com esse filtro.
 
 
-
+todo: testes automatizados e mais organizacao
+nessa logica dupla de verificacao de cookies
+pra web e pra flutter
 
 
 
